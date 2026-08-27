@@ -1,0 +1,59 @@
+﻿@page
+@model AddTaskModel
+
+<div class="container mt-4">
+
+    <h1 class="page-title h3 mb-3">Add New Task</h1>
+
+    <div class="ledger-form-card">
+        <form method="post">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+            <div class="mb-3">
+                <label asp-for="Task.Title" class="form-label">Task Title</label>
+                <input asp-for="Task.Title" class="form-control" placeholder="e.g. Finish Azure assignment" />
+                <span asp-validation-for="Task.Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Task.Description" class="form-label">Description</label>
+                <textarea asp-for="Task.Description" class="form-control" rows="4" placeholder="Enter task details..."></textarea>
+                <span asp-validation-for="Task.Description" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Task.Subject" class="form-label">Subject / Unit</label>
+                <input asp-for="Task.Subject" class="form-control" placeholder="e.g. SWE40006" />
+                <span asp-validation-for="Task.Subject" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Task.DueDate" class="form-label">Due Date</label>
+                    <input asp-for="Task.DueDate" type="date" class="form-control" />
+                    <span asp-validation-for="Task.DueDate" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Task.Priority" class="form-label">Priority</label>
+                    <select asp-for="Task.Priority" class="form-select">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                    <span asp-validation-for="Task.Priority" class="text-danger"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-ledger-primary">Add Task</button>
+            <a asp-page="/Index" class="btn btn-ledger-outline">Cancel</a>
+
+        </form>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

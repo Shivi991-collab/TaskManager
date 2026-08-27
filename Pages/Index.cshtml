@@ -1,0 +1,191 @@
+﻿@page
+@model IndexModel
+
+@{
+    var pending = Model.Tasks.Where(t => !t.IsCompleted).ToList();
+    var overdue = pending.Where(t => t.IsOverdue).ToList();
+    var dueSoon = pending.Where(t => t.IsDueSoon && !t.IsOverdue).ToList();
+    var upcoming = pending.Where(t => !t.IsOverdue && !t.IsDueSoon).ToList();
+    var completed = Model.Tasks.Where(t => t.IsCompleted).ToList();
+}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h1 class="page-title display-6">Student Task Manager</h1>
+        <p class="page-lede mb-0">Keep track of your university tasks and deadlines.</p>
+    </div>
+
+    <div class="stat-strip">
+        <div class="stat-cell">
+            <div class="stat-value">@Model.Tasks.Count</div>
+            <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-cell">
+            <div class="stat-value">@completed.Count</div>
+            <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-cell">
+            <div class="stat-value">@pending.Count</div>
+            <div class="stat-label">Remaining</div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h5 mb-0">My Tasks</h2>
+        <a asp-page="/AddTask" class="btn btn-ledger-primary btn-sm">+ Add Task</a>
+    </div>
+
+    @if (Model.Tasks.Count == 0)
+    {
+        <div class="empty-state mt-3">
+            <div class="empty-title">Nothing on the ledger yet</div>
+            <p class="mb-0">Click "Add Task" to log your first assignment or deadline.</p>
+        </div>
+    }
+
+    @if (overdue.Any())
+    {
+        <div class="ledger-section-label is-overdue">Overdue &middot; @overdue.Count</div>
+        @foreach (var task in overdue)
+        {
+            var priorityClass = "priority-" + task.Priority.ToLower();
+            <div class="task-card @priorityClass">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                    <div>
+                        <span class="task-subject">@task.Subject</span>
+                        <div class="task-title">@task.Title</div>
+                        @if (!string.IsNullOrWhiteSpace(task.Description))
+                        {
+                            <p class="task-description">@task.Description</p>
+                        }
+                        <span class="priority-pill @priorityClass mt-2">@task.Priority priority</span>
+                    </div>
+                    <div class="text-end">
+                        <span class="due-ticket">DUE @task.DueDate.ToString("dd MMM").ToUpper()</span>
+                    </div>
+                </div>
+                <div class="task-actions mt-3 d-flex gap-2">
+                    <form method="post" asp-page-handler="ToggleComplete" class="d-inline">
+                        <input type="hidden" name="id" value="@task.Id" />
+                        <button type="submit" class="btn btn-sm btn-ledger-outline">✓ Mark done</button>
+                    </form>
+                    <a asp-page="/EditTask" asp-route-id="@task.Id" class="btn btn-sm btn-ledger-outline">✏ Edit</a>
+                    <form method="post" asp-page-handler="Delete" class="d-inline">
+                        <input type="hidden" name="id" value="@task.Id" />
+                        <button type="submit" class="btn btn-sm btn-ledger-outline text-danger" onclick="return confirm('Delete this task?');">🗑 Delete</button>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+
+    @if (dueSoon.Any())
+    {
+        <div class="ledger-section-label is-soon">Due soon &middot; @dueSoon.Count</div>
+        @foreach (var task in dueSoon)
+        {
+            var priorityClass = "priority-" + task.Priority.ToLower();
+            <div class="task-card @priorityClass">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                    <div>
+                        <span class="task-subject">@task.Subject</span>
+                        <div class="task-title">@task.Title</div>
+                        @if (!string.IsNullOrWhiteSpace(task.Description))
+                        {
+                            <p class="task-description">@task.Description</p>
+                        }
+                        <span class="priority-pill @priorityClass mt-2">@task.Priority priority</span>
+                    </div>
+                    <div class="text-end">
+                        <span class="due-ticket">DUE @task.DueDate.ToString("dd MMM").ToUpper()</span>
+                    </div>
+                </div>
+                <div class="task-actions mt-3 d-flex gap-2">
+                    <form method="post" asp-page-handler="ToggleComplete" class="d-inline">
+                        <input type="hidden" name="id" value="@task.Id" />
+                        <button type="submit" class="btn btn-sm btn-ledger-outline">✓ Mark done</button>
+                    </form>
+                    <a asp-page="/EditTask" asp-route-id="@task.Id" class="btn btn-sm btn-ledger-outline">✏ Edit</a>
+                    <form method="post" asp-page-handler="Delete" class="d-inline">
+                        <input type="hidden" name="id" value="@task.Id" />
+                        <button type="submit" class="btn btn-sm btn-ledger-outline text-danger" onclick="return confirm('Delete this task?');">🗑 Delete</button>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+
+    @if (upcoming.Any())
+    {
+        <div class="ledger-section-label">Upcoming &middot; @upcoming.Count</div>
+        @foreach (var task in upcoming)
+        {
+            var priorityClass = "priority-" + task.Priority.ToLower();
+            <div class="task-card @priorityClass">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                    <div>
+                        <span class="task-subject">@task.Subject</span>
+                        <div class="task-title">@task.Title</div>
+                        @if (!string.IsNullOrWhiteSpace(task.Description))
+                        {
+                            <p class="task-description">@task.Description</p>
+                        }
+                        <span class="priority-pill @priorityClass mt-2">@task.Priority priority</span>
+                    </div>
+                    <div class="text-end">
+                        <span class="due-ticket">DUE @task.DueDate.ToString("dd MMM").ToUpper()</span>
+                    </div>
+                </div>
+                <div class="task-actions mt-3 d-flex gap-2">
+                    <form method="post" asp-page-handler="ToggleComplete" class="d-inline">
+                        <input type="hidden" name="id" value="@task.Id" />
+                        <button type="submit" class="btn btn-sm btn-ledger-outline">✓ Mark done</button>
+                    </form>
+                    <a asp-page="/EditTask" asp-route-id="@task.Id" class="btn btn-sm btn-ledger-outline">✏ Edit</a>
+                    <form method="post" asp-page-handler="Delete" class="d-inline">
+                        <input type="hidden" name="id" value="@task.Id" />
+                        <button type="submit" class="btn btn-sm btn-ledger-outline text-danger" onclick="return confirm('Delete this task?');">🗑 Delete</button>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+
+    @if (completed.Any())
+    {
+        <div class="ledger-section-label is-done">Completed &middot; @completed.Count</div>
+        @foreach (var task in completed)
+        {
+            var priorityClass = "priority-" + task.Priority.ToLower();
+            <div class="task-card @priorityClass is-completed">
+                <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                    <div>
+                        <span class="task-subject">@task.Subject</span>
+                        <div class="task-title">✓ @task.Title</div>
+                        @if (!string.IsNullOrWhiteSpace(task.Description))
+                        {
+                            <p class="task-description">@task.Description</p>
+                        }
+                        <span class="priority-pill @priorityClass mt-2">@task.Priority priority</span>
+                    </div>
+                    <div class="text-end">
+                        <span class="due-ticket">DUE @task.DueDate.ToString("dd MMM").ToUpper()</span>
+                    </div>
+                </div>
+                <div class="task-actions mt-3 d-flex gap-2">
+                    <form method="post" asp-page-handler="ToggleComplete" class="d-inline">
+                        <input type="hidden" name="id" value="@task.Id" />
+                        <button type="submit" class="btn btn-sm btn-ledger-outline">↩ Undo</button>
+                    </form>
+                    <a asp-page="/EditTask" asp-route-id="@task.Id" class="btn btn-sm btn-ledger-outline">✏ Edit</a>
+                    <form method="post" asp-page-handler="Delete" class="d-inline">
+                        <input type="hidden" name="id" value="@task.Id" />
+                        <button type="submit" class="btn btn-sm btn-ledger-outline text-danger" onclick="return confirm('Delete this task?');">🗑 Delete</button>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+
+</div>
